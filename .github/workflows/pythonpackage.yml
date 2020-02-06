@@ -48,7 +48,17 @@ jobs:
       run: |
         pip install nose
         nosetests
-    - name: Publish to pypi-test
+    - name: Publish sdist to pypi-test
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && matrix.os == 'ubuntu-latest'
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPITEST_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPITEST_PASSWORD }}
+        TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
+      run: |
+        pip install wheel twine
+        python setup.py sdist
+        twine upload --skip-existing dist/*
+    - name: Publish bdist to pypi-test
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') && matrix.os != 'ubuntu-latest'
       env:
         TWINE_USERNAME: ${{ secrets.PYPITEST_USERNAME }}
@@ -56,5 +66,5 @@ jobs:
         TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
       run: |
         pip install wheel twine
-        python setup.py sdist bdist_wheel
+        python setup.py bdist_wheel
         twine upload --skip-existing dist/*
