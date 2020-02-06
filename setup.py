@@ -146,6 +146,8 @@ class BuildExt(build_ext):
 setup_kwargs = dict(
         name='pyroomacoustics',
 
+        version=__version__,
+
         description='A simple framework for room acoustics and audio processing in Python.',
         long_description=long_description,
 
