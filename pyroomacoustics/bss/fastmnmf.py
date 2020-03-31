@@ -77,7 +77,7 @@ def fastmnmf(
         An (nframes, nfrequencies, nsources) array. 
     """
 
-    eps = 1e-8
+    eps = 1e-7
 
     # initialize parameter
     X_FTM = X.transpose(1, 0, 2)
