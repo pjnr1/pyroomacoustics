@@ -130,7 +130,7 @@ def saturation_water_vapor_pressure(t, method='iso'):
     return func()
 
 
-def calculate_enhancement_factor(ps, t):
+def enhancement_factor(ps, t):
     '''
 
     # TODO: add description
@@ -164,7 +164,7 @@ def calculate_enhancement_factor(ps, t):
     return a[0] + a[1] * ps + a[2] * np.power(t, 2)
 
 
-def calculate_mole_fraction_of_water_vapor_in_air(t, ps, h, method='iso'):
+def mole_fraction_of_water_vapor_in_air(t, ps, h, method='iso'):
     '''
 
     # TODO: add description
@@ -192,13 +192,13 @@ def calculate_mole_fraction_of_water_vapor_in_air(t, ps, h, method='iso'):
 
     _h = h / 100
     _p = saturation_water_vapor_pressure(t, method) / ps
-    _f = calculate_enhancement_factor(ps, t)
+    _f = enhancement_factor(ps, t)
 
     # [1], eq. 19
     return _h * _p * _f
 
 
-def calculate_compressibility_factor(t, ps, h, method='iso'):
+def compressibility_factor(t, ps, h, method='iso'):
     '''
 
     # TODO: add description
@@ -238,7 +238,7 @@ def calculate_compressibility_factor(t, ps, h, method='iso'):
          -2.376e-6,
          1.83e-11,
          -0.765e-8]
-    x_W = calculate_mole_fraction_of_water_vapor_in_air(t, ps, h, method)
+    x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
 
     T = celsius_to_kelvin(t)
     ps_T = ps / T
@@ -249,7 +249,7 @@ def calculate_compressibility_factor(t, ps, h, method='iso'):
     return 1 - ps_T * _1 + np.power(ps_T, 2) * _2
 
 
-def calculate_density_of_air(t, ps, h, x_c=None, method='iso'):
+def density_of_air(t, ps, h, x_c=None, method='iso'):
     '''
 
     # TODO: add description
@@ -285,8 +285,8 @@ def calculate_density_of_air(t, ps, h, x_c=None, method='iso'):
 
     T = celsius_to_kelvin(t)
 
-    ps_ZT = ps / (calculate_compressibility_factor(t, ps, h, method) * T)
+    ps_ZT = ps / (compressibility_factor(t, ps, h, method) * T)
 
-    x_W = calculate_mole_fraction_of_water_vapor_in_air(t, ps, h, method)
+    x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
 
     return 1e-3 * (3.48349 + 1.44 * (x_c - 0.0004)) * ps_ZT * (1 - 0.378  * x_W)
