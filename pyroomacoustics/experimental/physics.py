@@ -270,7 +270,7 @@ def calculate_density_of_air(t, ps, h, x_c=None, method='iso'):
     Returns
     -------
 
-    Density of air
+    Density of air [kg/m^3]
 
     References
     ----------
