@@ -3,7 +3,7 @@ from __future__ import division
 import numpy as np
 
 
-def calculate_speed_of_sound(t, h, p): 
+def calculate_speed_of_sound(t, h, p):
     ''' 
     Compute the speed of sound as a function of
     temperature, humidity and pressure
@@ -22,7 +22,7 @@ def calculate_speed_of_sound(t, h, p):
     '''
 
     # using crude approximation for now
-    return 331.4 + 0.6*t + 0.0124*h
+    return 331.4 + 0.6 * t + 0.0124 * h
 
 
 def celsius_to_kelvin(t):
@@ -244,7 +244,7 @@ def compressibility_factor(t, ps, h, method='iso'):
     ps_T = ps / T
 
     # [2], eq. 24
-    _1 = a[0] + a[1]*t + a[2] * np.power(t, 2) + (a[3] + a[4] * t) * x_W + (a[5] + a[6] * t) * np.power(x_W, 2)
+    _1 = a[0] + a[1] * t + a[2] * np.power(t, 2) + (a[3] + a[4] * t) * x_W + (a[5] + a[6] * t) * np.power(x_W, 2)
     _2 = a[7] + a[8] * np.power(x_W, 2)
     return 1 - ps_T * _1 + np.power(ps_T, 2) * _2
 
