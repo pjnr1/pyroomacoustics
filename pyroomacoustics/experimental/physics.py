@@ -93,7 +93,7 @@ def saturation_water_vapor_pressure(t, method='iso'):
 
     '''
 
-    def _iso(x):
+    def _iso():
         # Constants
         T0 = 273.15
         p_sr = reference_static_pressure()
@@ -106,7 +106,7 @@ def saturation_water_vapor_pressure(t, method='iso'):
         # [1], eqs. B2
         return p_sr * np.power(10, C)
 
-    def _giacomo(x):
+    def _giacomo():
         # Table A.1 [3]
         a = [1.2378847e-5,
              -1.9121316e-2,
@@ -125,9 +125,9 @@ def saturation_water_vapor_pressure(t, method='iso'):
         raise ValueError('method argument not recognized. Supported methods: {}'.format(methods.keys()))
 
     # Defaults to simply return the input temperature, though the lambda function should be reached
-    func = methods.get(method, lambda x: x)
+    func = methods.get(method, lambda: 0)
 
-    return func(t)
+    return func()
 
 
 def calculate_enhancement_factor(ps, t):
