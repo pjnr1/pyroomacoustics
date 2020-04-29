@@ -81,7 +81,17 @@ def saturation_water_vapor_pressure(t, method='iso'):
 
     The implementations are based on [3].
 
-    # TODO: add equations for reference
+    'giacomo' method ([2], eq. 22):
+
+    .. math::
+        p_{SV}(t) = \exp \left( a_0 T^2 + a_1 T + a_2 + a_3 T^{-1} \right)
+
+    'iso' method ([1], eqs. B2, B3):
+
+    .. math::
+        C = 4.6151 - 6.8346 \left( \frac{T_0 + 0.01}{T} \right)^{1.261} \\
+        p_{SV}(t) = p_{s,r} 10^C
+
 
     References
     ----------
@@ -104,7 +114,7 @@ def saturation_water_vapor_pressure(t, method='iso'):
         C = 4.6151 - 6.8346 * np.power((T0 + 0.01) / T, 1.261)
 
         # [1], eqs. B2
-        return p_sr * np.power(10, C)
+        return p_sr * np.power(10., C)
 
     def _giacomo():
         # Table A.1 [3]
@@ -116,7 +126,7 @@ def saturation_water_vapor_pressure(t, method='iso'):
         T = celsius_to_kelvin(t)
 
         # [2], eq. 22
-        return np.exp(a[0] * (T ** 2) + a[1] * T + a[2] + a[3] / T)
+        return np.exp(a[0] * np.power(T, 2.) + a[1] * T + a[2] + a[3] / T)
 
     # Map of valid methods and the corresponding computation functions
     methods = {'iso': _iso,
@@ -125,7 +135,7 @@ def saturation_water_vapor_pressure(t, method='iso'):
         raise ValueError('method argument not recognized. Supported methods: {}'.format(methods.keys()))
 
     # Defaults to simply return the input temperature, though the lambda function should be reached
-    func = methods.get(method, lambda: 0)
+    func = methods.get(method, lambda: 0.0)
 
     return func()
 
@@ -161,7 +171,7 @@ def enhancement_factor(ps, t):
          5.6e-7]
 
     # [1], eq. 23
-    return a[0] + a[1] * ps + a[2] * np.power(t, 2)
+    return a[0] + a[1] * ps + a[2] * np.power(t, 2.)
 
 
 def mole_fraction_of_water_vapor_in_air(t, ps, h, method='iso'):
@@ -190,7 +200,7 @@ def mole_fraction_of_water_vapor_in_air(t, ps, h, method='iso'):
 
     '''
 
-    _h = h / 100
+    _h = h / 100.
     _p = saturation_water_vapor_pressure(t, method) / ps
     _f = enhancement_factor(ps, t)
 
@@ -244,9 +254,9 @@ def compressibility_factor(t, ps, h, method='iso'):
     ps_T = ps / T
 
     # [2], eq. 24
-    _1 = a[0] + a[1] * t + a[2] * np.power(t, 2) + (a[3] + a[4] * t) * x_W + (a[5] + a[6] * t) * np.power(x_W, 2)
-    _2 = a[7] + a[8] * np.power(x_W, 2)
-    return 1 - ps_T * _1 + np.power(ps_T, 2) * _2
+    _1 = a[0] + a[1] * t + a[2] * np.power(t, 2.) + (a[3] + a[4] * t) * x_W + (a[5] + a[6] * t) * np.power(x_W, 2.)
+    _2 = a[7] + a[8] * np.power(x_W, 2.)
+    return 1 - ps_T * _1 + np.power(ps_T, 2.) * _2
 
 
 def density_of_air(t, ps, h, x_c=None, method='iso'):
@@ -289,7 +299,7 @@ def density_of_air(t, ps, h, x_c=None, method='iso'):
 
     x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
 
-    return 1e-3 * (3.48349 + 1.44 * (x_c - 0.0004)) * ps_ZT * (1 - 0.378 * x_W)
+    return 1e-3 * (3.48349 + 1.44 * (x_c - 0.0004)) * ps_ZT * (1. - 0.378 * x_W)
 
 
 def zero_freq_speed_of_sound(t, ps, h, x_c=None, method='iso'):
@@ -430,11 +440,11 @@ def ratio_of_specific_heats(t, ps, h, x_c=None, method='iso'):
          0.0450616,
          1.82e-6]
 
-    t2 = np.power(t, 2)
-    ps2 = np.power(ps, 2)
-    x_c2 = np.power(x_c, 2)
+    t2 = np.power(t, 2.)
+    ps2 = np.power(ps, 2.)
+    x_c2 = np.power(x_c, 2.)
     x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
-    x_W2 = np.power(x_W, 2)
+    x_W2 = np.power(x_W, 2.)
 
     # Equation is split up in all it's terms of addition, thus the final output is the sum of the following list
     return sum([
@@ -572,10 +582,10 @@ def specific_heat_at_constant_pressure(t, ps, h, method='iso'):
          1.74e-8]
 
     T = celsius_to_kelvin(t)
-    T2 = np.power(T, 2)
-    T3 = np.power(T, 3)
+    T2 = np.power(T, 2.)
+    T3 = np.power(T, 3.)
     x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
-    x_W2 = np.power(x_W, 2)
+    x_W2 = np.power(x_W, 2.)
 
     return sum([
         a[0],
@@ -649,7 +659,7 @@ def attenuation_coefficient_of_relaxation_in(a, t, ps, h, f, method='iso'):
     f_r = relaxation_frequency_of(a, t, ps, h, method)
     f2 = np.power(f, 2.0)
     T = celsius_to_kelvin(t)
-    T20_T = celsius_to_kelvin(20) / T
+    T20_T = celsius_to_kelvin(20.) / T
 
     supported_atoms = {'O': [0.01275, 2239.1],
                        'N': [0.1068, 3352.0]}
@@ -680,10 +690,10 @@ def ideal_attenuation_coefficient_of_relaxation_in(a, t, ps, h, f, x_c=None, met
 
     # split computation for better overview
     _1 = coef[0] * 2. * np.pi / 35.
-    _2 = ((f / f_r) / np.power(1 + (f / f_r), 2))
+    _2 = ((f / f_r) / np.power(1. + (f / f_r), 2.))
     _3 = 2. * f / c
 
-    return _1 * _2 * _3 * np.power(coef[1] / T, 2) * np.exp(-coef[1] / T)
+    return _1 * _2 * _3 * np.power(coef[1] / T, 2.) * np.exp(-coef[1] / T)
 
 
 def speed_of_sound_at_actual_frequency(t, ps, h, f, x_c=None, method='iso'):
@@ -698,7 +708,7 @@ def speed_of_sound_at_actual_frequency(t, ps, h, f, x_c=None, method='iso'):
 
     c_0 = zero_freq_speed_of_sound(t, ps, h, x_c, method)
 
-    return 1. / ((1. / c_0) - a_vO / (2 * np.pi * f_rO) - a_vN / (2 * np.pi * f_rN))
+    return 1. / ((1. / c_0) - a_vO / (2. * np.pi * f_rO) - a_vN / (2. * np.pi * f_rN))
 
 
 def ideal_speed_of_sound_at_actual_frequency(t, ps, h, f, x_c=None, method='iso'):
@@ -713,4 +723,4 @@ def ideal_speed_of_sound_at_actual_frequency(t, ps, h, f, x_c=None, method='iso'
 
     c_0 = zero_freq_speed_of_sound(t, ps, h, x_c, method)
 
-    return 1. / ((1. / c_0) - a_vO / (2 * np.pi * f_rO) - a_vN / (2 * np.pi * f_rN))
+    return 1. / ((1. / c_0) - a_vO / (2. * np.pi * f_rO) - a_vN / (2. * np.pi * f_rN))
