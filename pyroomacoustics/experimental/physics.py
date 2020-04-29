@@ -289,4 +289,428 @@ def density_of_air(t, ps, h, x_c=None, method='iso'):
 
     x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
 
-    return 1e-3 * (3.48349 + 1.44 * (x_c - 0.0004)) * ps_ZT * (1 - 0.378  * x_W)
+    return 1e-3 * (3.48349 + 1.44 * (x_c - 0.0004)) * ps_ZT * (1 - 0.378 * x_W)
+
+
+def zero_freq_speed_of_sound(t, ps, h, x_c=None, method='iso'):
+    '''
+
+    Zero-frequency speed of sound in air
+
+    # TODO: add description
+
+    Parameters
+    ----------
+    t
+    ps
+    h
+    x_c
+    method
+
+    Returns
+    -------
+
+    #TODO
+
+    Notes
+    -----
+
+    The used equation is
+
+    ..math::
+        c_0 = a_0 + a_1 t + a_2 t^2 + (a_3 + a_4 t + a_5 t^2) x_W + (a_6 + a_7 t + a_8 t^2) p_S +
+        (a_9 + a_{10} t + a_{11} t^2) x_c + a_{12} x_W^2 + a_{13} p_S^2 + a_{14} x_c^2 + a_{15} x_W p_S x_c
+
+    Each sum is split up in a list, for which the sum is returned
+    References
+    ----------
+
+    .. [1] K. Rasmussen, "Calculation methods for the physical properties of air used in the calibration of
+       microphones", Report PL-11b, Department of Acoustic Technology, Technical University of Denmark, 1997
+    '''
+
+    if x_c is None:
+        # mole fraction of CO2 in air, see [1]
+        x_c = 0.0004
+
+    # [1], table A.1
+    a = [331.5024,
+         0.603055,
+         -0.000528,
+         51.471935,
+         0.1495874,
+         -0.000782,
+         -1.82e-7,
+         3.73e-8,
+         -2.93e-10,
+         -82.20931,
+         -0.228525,
+         5.91e-5,
+         -2.835149,
+         -2.15e-13,
+         29.179762,
+         0.000486]
+
+    t2 = np.power(t, 2.)
+    ps2 = np.power(ps, 2.)
+    x_c2 = np.power(x_c, 2.)
+    x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
+    x_W2 = np.power(x_W, 2.)
+
+    # Equation is split up in all it's terms of addition, thus the final output is the sum of the following list
+    return sum([
+        a[0] + a[1] * t + a[2] * t2,
+        (a[3] + a[4] * t + a[5] * t2) * x_W,
+        (a[6] + a[7] * t + a[8] * t2) * ps,
+        (a[9] + a[10] * t + a[11] * t2) * x_c,
+        a[12] * x_W2,
+        a[13] * ps2,
+        a[14] * x_c2,
+        a[15] * x_W * ps * x_c
+    ])
+
+
+def ratio_of_specific_heats(t, ps, h, x_c=None, method='iso'):
+    '''
+
+    Ratio of specific heats
+
+    # TODO: add description
+
+    Parameters
+    ----------
+    t
+    ps
+    h
+    x_c
+    method
+
+    Returns
+    -------
+
+    #TODO
+
+    Notes
+    -----
+
+    The used equation is
+
+    ..math::
+        c_0 = a_0 + a_1 t + a_2 t^2 + (a_3 + a_4 t + a_5 t^2) x_W + (a_6 + a_7 t + a_8 t^2) p_S +
+        (a_9 + a_{10} t + a_{11} t^2) x_c + a_{12} x_W^2 + a_{13} p_S^2 + a_{14} x_c^2 + a_{15} x_W p_S x_c
+
+    Each sum is split up in a list, for which the sum is returned
+
+    References
+    ----------
+
+    .. [1] K. Rasmussen, "Calculation methods for the physical properties of air used in the calibration of
+       microphones", Report PL-11b, Department of Acoustic Technology, Technical University of Denmark, 1997
+    '''
+
+    if x_c is None:
+        # mole fraction of CO2 in air, see [1]
+        x_c = 0.0004
+
+    # [1], table A.1
+    a = [1.400822,
+         -1.75e-5,
+         -1.73e-7,
+         -0.0873629,
+         -0.0001665,
+         -3.26e-6,
+         2.047e-8,
+         -1.26e-10,
+         5.939e-14,
+         -0.1199717,
+         -0.0008693,
+         1.979e-6,
+         -0.01104,
+         -3.478e-16,
+         0.0450616,
+         1.82e-6]
+
+    t2 = np.power(t, 2)
+    ps2 = np.power(ps, 2)
+    x_c2 = np.power(x_c, 2)
+    x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
+    x_W2 = np.power(x_W, 2)
+
+    # Equation is split up in all it's terms of addition, thus the final output is the sum of the following list
+    return sum([
+        a[0] + a[1] * t + a[2] * t2,
+        (a[3] + a[4] * t + a[5] * t2) * x_W,
+        (a[6] + a[7] * t + a[8] * t2) * ps,
+        (a[9] + a[10] * t + a[11] * t2) * x_c,
+        a[12] * x_W2,
+        a[13] * ps2,
+        a[14] * x_c2,
+        a[15] * x_W * ps * x_c
+    ])
+
+
+def viscosity_of_air(t, ps, h, method='iso'):
+    '''
+
+    # TODO: Add description
+
+    Parameters
+    ----------
+    t
+    ps
+    h
+    method
+
+    Returns
+    -------
+
+    References
+    ----------
+
+    .. [1] K. Rasmussen, "Calculation methods for the physical properties of air used in the calibration of
+       microphones", Report PL-11b, Department of Acoustic Technology, Technical University of Denmark, 1997
+
+    '''
+
+    # [1], table A.1
+    a = [84.986,
+         7.0,
+         113.157,
+         -1,
+         -3.7501e-3,
+         -100.015]
+
+    T = celsius_to_kelvin(t)
+    T2 = np.power(T, 2)
+    x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
+    x_W2 = np.power(x_W, 2)
+
+    return 1e-8 * sum([
+        a[0],
+        a[1] * T,
+        (a[2] + a[3] * T) * x_W,
+        a[4] * T2,
+        a[5] * x_W2
+    ])
+
+
+def thermal_conductivity(t, ps, h, method='iso'):
+    '''
+
+    # TODO: Add description
+
+    Parameters
+    ----------
+    t
+    ps
+    h
+    method
+
+    Returns
+    -------
+
+    References
+    ----------
+
+    .. [1] K. Rasmussen, "Calculation methods for the physical properties of air used in the calibration of
+       microphones", Report PL-11b, Department of Acoustic Technology, Technical University of Denmark, 1997
+
+    '''
+
+    # [1], table A.1
+    a = [60.054,
+         1.846,
+         2.06e-6,
+         40,
+         -1.775e-4]
+
+    T = celsius_to_kelvin(t)
+    T2 = np.power(T, 2)
+    x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
+
+    return 1e-8 * sum([
+        a[0],
+        a[1] * T,
+        a[2] * T2,
+        (a[3] + a[4] * T) * x_W
+    ])
+
+
+def specific_heat_at_constant_pressure(t, ps, h, method='iso'):
+    '''
+
+    # TODO: Add description
+
+    Parameters
+    ----------
+    t
+    ps
+    h
+    method
+
+    Returns
+    -------
+
+    References
+    ----------
+
+    .. [1] K. Rasmussen, "Calculation methods for the physical properties of air used in the calibration of
+       microphones", Report PL-11b, Department of Acoustic Technology, Technical University of Denmark, 1997
+
+    '''
+
+    # [1], table A.1
+    a = [0.251625,
+         -9.2525e-5,
+         2.1334e-7,
+         -1.0043e-10,
+         0.12477,
+         -2.283e-5,
+         1.267e-7,
+         0.01116,
+         4.61e-6,
+         1.74e-8]
+
+    T = celsius_to_kelvin(t)
+    T2 = np.power(T, 2)
+    T3 = np.power(T, 3)
+    x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
+    x_W2 = np.power(x_W, 2)
+
+    return sum([
+        a[0],
+        a[1] * T,
+        a[2] * T2,
+        a[3] * T3,
+        (a[4] + a[5] * T + a[6] * T2) * x_W,
+        (a[7] + a[8] * T + a[9] * T2) * x_W2
+    ])
+
+
+def diffusitivity_of_air(t, ps, h, x_c=None, method='iso'):
+    '''
+
+    #TODO: add description
+
+    Parameters
+    ----------
+    t
+    ps
+    h
+    x_c
+    method
+
+    Returns
+    -------
+
+    '''
+
+    k_a = thermal_conductivity(t, ps, h, method)
+    rho = density_of_air(t, ps, h, x_c, method)
+    C_p = specific_heat_at_constant_pressure(t, ps, h, method)
+
+    return k_a / (rho * C_p)
+
+
+def relaxation_frequency_of(a, t, ps, h, method='iso'):
+
+    # TODO: Add docstring
+
+    def fr_O():
+        psr = reference_static_pressure()
+        x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
+
+        return (ps / psr) * (24. + 4.04e6 * x_W * ((0.2 + 1e3 * x_W) / (3.91 + 1e3 * x_W)))
+
+    def fr_N():
+        psr = reference_static_pressure()
+        x_W = mole_fraction_of_water_vapor_in_air(t, ps, h, method)
+        T = celsius_to_kelvin(t)
+        T_T20 = T / celsius_to_kelvin(20)
+
+        return (ps / psr) * np.power(T_T20, -1. / 2.) * (
+                9. + 28e3 * x_W * np.exp(-4.17 * (np.power(T_T20, -1. / 3.) - 1.)))
+
+    supported_atoms = {'O': fr_O,
+                       'N': fr_N}
+    if a not in supported_atoms.keys():
+        raise ValueError('a (atom) argument not recognized. Supported atoms: {}'.format(supported_atoms.keys()))
+
+    # Defaults to simply return the input temperature, though the lambda function should be reached
+    func = supported_atoms.get(a, lambda: 0)
+
+    return func()
+
+
+def attenuation_coefficient_of_relaxation_in(a, t, ps, h, f, method='iso'):
+
+    # TODO: Add docstring
+
+    f_r = relaxation_frequency_of(a, t, ps, h, method)
+    f2 = np.power(f, 2.0)
+    T = celsius_to_kelvin(t)
+    T20_T = celsius_to_kelvin(20) / T
+
+    supported_atoms = {'O': [0.01275, 2239.1],
+                       'N': [0.1068, 3352.0]}
+    if a not in supported_atoms.keys():
+        raise ValueError('a (atom) argument not recognized. Supported atoms: {}'.format(supported_atoms.keys()))
+
+    # Defaults zero, resulting in a output of zero
+    coef = supported_atoms.get(a, [0.0, 0.0])
+
+    return coef[0] * f2 * (np.exp(-coef[1] / T) / (f_r + f2 / f_r)) * np.power(T20_T, 5.0 / 2.0)
+
+
+def ideal_attenuation_coefficient_of_relaxation_in(a, t, ps, h, f, x_c=None, method='iso'):
+
+    # TODO: Add docstring
+
+    f_r = relaxation_frequency_of(a, t, ps, h, method)
+    T = celsius_to_kelvin(t)
+    c = zero_freq_speed_of_sound(t, ps, h, x_c, method)
+
+    supported_atoms = {'O': [0.209, 2239.1],
+                       'N': [0.781, 3352.0]}
+    if a not in supported_atoms.keys():
+        raise ValueError('a (atom) argument not recognized. Supported atoms: {}'.format(supported_atoms.keys()))
+
+    # Defaults zero, resulting in a output of zero
+    coef = supported_atoms.get(a, [0.0, 0.0])
+
+    # split computation for better overview
+    _1 = coef[0] * 2. * np.pi / 35.
+    _2 = ((f / f_r) / np.power(1 + (f / f_r), 2))
+    _3 = 2. * f / c
+
+    return _1 * _2 * _3 * np.power(coef[1] / T, 2) * np.exp(-coef[1] / T)
+
+
+def speed_of_sound_at_actual_frequency(t, ps, h, f, x_c=None, method='iso'):
+
+    # TODO: Add docstring
+
+    a_vO = attenuation_coefficient_of_relaxation_in('O', t, ps, h, f, method)
+    a_vN = attenuation_coefficient_of_relaxation_in('N', t, ps, h, f, method)
+
+    f_rO = relaxation_frequency_of('O', t, ps, h, method)
+    f_rN = relaxation_frequency_of('N', t, ps, h, method)
+
+    c_0 = zero_freq_speed_of_sound(t, ps, h, x_c, method)
+
+    return 1. / ((1. / c_0) - a_vO / (2 * np.pi * f_rO) - a_vN / (2 * np.pi * f_rN))
+
+
+def ideal_speed_of_sound_at_actual_frequency(t, ps, h, f, x_c=None, method='iso'):
+
+    # TODO: Add docstring
+
+    a_vO = ideal_attenuation_coefficient_of_relaxation_in('O', t, ps, h, f, x_c, method)
+    a_vN = ideal_attenuation_coefficient_of_relaxation_in('N', t, ps, h, f, x_c, method)
+
+    f_rO = relaxation_frequency_of('O', t, ps, h, method)
+    f_rN = relaxation_frequency_of('N', t, ps, h, method)
+
+    c_0 = zero_freq_speed_of_sound(t, ps, h, x_c, method)
+
+    return 1. / ((1. / c_0) - a_vO / (2 * np.pi * f_rO) - a_vN / (2 * np.pi * f_rN))
